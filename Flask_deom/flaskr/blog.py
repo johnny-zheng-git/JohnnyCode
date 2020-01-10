@@ -12,4 +12,5 @@ bp = Blueprint('blog', __name__)
 @bp.route('/')
 @authorize
 def index():
-    return get_dbsession().query(User_zwq.id,User_zwq.pwd).filter_by(id=session.get("user_id")).first()
+    user = get_dbsession().query(User_zwq.id, User_zwq.pwd).filter_by(id=session.get("user_id")).first()
+    return str(user.id)

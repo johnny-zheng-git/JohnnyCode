@@ -5,6 +5,7 @@ from flask import (
 from werkzeug.security import check_password_hash,generate_password_hash
 
 from .db import get_dbsession,User_zwq
+from .encrypt_function import (AES_dencrypt, AES_encrypt, md5)
 
 bp = Blueprint("auth",__name__,url_prefix="/auth")
 print(__name__)
@@ -25,36 +26,43 @@ def register():
         elif db_session.query(User_zwq.id).filter_by(username=username).first() is not None:
             error = f"{username} 已经被注册"
         if error is None:
-            new_user = User_zwq(username=username, pwd=generate_password_hash(pwd))
+            new_user = User_zwq(username=username, pwd=md5(pwd))
             print(username,pwd)
             # 添加到session:
             print(db_session)
-            test_str = db_session.add(new_user)
-            print(test_str)
+            db_session.add(new_user)
+            try:
+                db_session.commit()
+            except Exception as e:
+                print(e)
+            finally:
+                db_session.close()
             return redirect(url_for('auth.login'))
         flash(error)
     return render_template('auth/register.html')
 
 @bp.route("login",methods = ("GET","POST"))
 def login():
-    if request.method is "POST":
+    if request.method == "POST":
         username = request.form['username']
         pwd = request.form['password']
         db_session = get_dbsession()
         error = None  # 判断用户输入及用户已注册后的返回错误信息
         print(db_session)
-        user = db_session.query(User_zwq.id,User_zwq.pwd).filter_by(username=username).first()
-        print(str(user),type(user))
+        user = db_session.query(User_zwq.id,User_zwq.pwd).filter_by(username=username).one()
+        print(type(user))
         if not username:
             error = '未输入用户名'
         elif not pwd:
             error = '未输入密码'
-        elif not check_password_hash(user["pwd"],pwd):
+        elif user.pwd!=md5(pwd):
             error = "用户名或密码错误"
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = user.id
+            print('============')
             return redirect(url_for('index'))
+
         flash(error)
     return render_template('auth/login.html')
 @bp.before_app_request

@@ -20,7 +20,8 @@ class User_zwq(_Base):  # 继承declarative_base类
 
 def _get_engine():
     # print(current_app.config)
-    return create_engine(current_app.config['DATABASE'],max_overflow=current_app.config['MAX_OVERFLOW'])
+    engine = create_engine(current_app.config['DATABASE'],max_overflow=current_app.config['MAX_OVERFLOW'])
+    return engine
 
 
 def init_db():
@@ -31,13 +32,12 @@ def init_db():
 def get_dbsession():
 
     if 'db_session' not in g:
-
-        g.db_session = sessionmaker(bind=_get_engine())
-    return g.db_session
+        engine = _get_engine()
+        g.db_session = sessionmaker(bind=engine)
+    return g.db_session()
 
 
 def close_db(e=None):  # ？
-    print("close")
     db_session = g.pop("db_session", None)  # ??
     if db_session is not None:
         db_session().close()

@@ -3,16 +3,16 @@ import os
 
 
 def create_app(test_config=None):
-    DB = {
-        "user": "root",
-        "pwd": "cPHWFPtp55WE4Z1q",
-        "host": "cdb-ovrbs6o6.cd.tencentcdb.com",
-        "port": 10055,
-        "db": "test2"
-    }
+    DB = {                                          #  DB = {
+        "user": "johnny",                             #      "user": "root",
+        "pwd": "toor",  # netstat -anp  #      "pwd": "cPHWFPtp55WE4Z1q",  # netstat -anp
+        "host": "192.168.1.103",   #      "host": "cdb-ovrbs6o6.cd.tencentcdb.com",
+        "port": 3306,                              #      "port": 10055,
+        "db": "test"                               #      "db": "test2"
+    }                                               #  }
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY='zhengwenqaing""',
+        SECRET_KEY='zhengwenqaing',
         DATABASE=f"mysql+pymysql://{DB['user']}:{DB['pwd']}@{DB['host']}:{DB['port']}/{DB['db']}",
         MAX_OVERFLOW=5,   # max_overflow=5 必须大写
     )
